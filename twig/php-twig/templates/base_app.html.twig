@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{% block title %}Ticket App - Dashboard{% endblock %}</title>
+    <link href="/build/styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    {% include 'components/navbar.html.twig' %}
+    <div class="flex">
+        {% include 'components/sidebar.html.twig' %}
+        <div class="flex-1 p-6">
+            {# Client-side guard for protected routes #}
+            <script>
+                (function(){
+                    try {
+                        const session = localStorage.getItem('ticketapp_session');
+                        const user = localStorage.getItem('currentUser');
+                        if (!session || !user) {
+                            window.location.href = '/login';
+                        }
+                    } catch(e) { console.warn('auth guard error', e);}
+                })();
+            </script>
+
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+
+    {% include 'components/footer.html.twig' %}
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/tickets/storage.js"></script>
+    <script src="/js/tickets/ticket_form.js"></script>
+    <script src="/js/tickets/list_tickets.js"></script>
+    <script src="/js/network.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/offline_popup.js"></script>
+</body>
+</html>
