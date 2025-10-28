@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login - TicketFlow{% endblock %}
+
+{% block body %}
+<div class="page flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4">
+  <form method="post" action="/login" class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md animate-bounce-in">
+    <h2 class="text-2xl font-bold text-center mb-4 text-gray-800 dark:text-white">Welcome Back</h2>
+
+    {# Flash messages (server-side) #}
+    {% for label, messages in app.flashes %}
+      {% for msg in messages %}
+        <div class="mb-4 px-4 py-3 rounded-md text-sm {{ label == 'success' ? 'bg-green-50 text-green-800' : label == 'error' ? 'bg-red-50 text-red-800' : 'bg-gray-50 text-gray-800' }}">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endfor %}
+
+    {# CSRF token placeholder for Symfony authentication #}
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate')|default('') }}" />
+
+    {# Email field #}
+    <div class="mb-3">
+      <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Email</label>
+      <input
+        type="email"
+        name="email"
+        value="{{ last_username|default('') }}"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white {{ errors.email ? 'border-red-500' : '' }}"
+        required
+        autofocus
+      />
+      {% if errors.email %}
+        <p class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
+      {% endif %}
+    </div>
+
+    {# Password field #}
+    <div class="mb-3">
+      <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Password</label>
+      <input
+        type="password"
+        name="password"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white {{ errors.password ? 'border-red-500' : '' }}"
+        required
+      />
+      {% if errors.password %}
+        <p class="text-red-500 text-sm mt-1">{{ errors.password }}</p>
+      {% endif %}
+    </div>
+
+    {# Submit button #}
+    <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 mt-5">
+      <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition" {% if isSubmitting %}disabled{% endif %}>
+        {{ isSubmitting ? 'Logging in...' : 'Login' }}
+      </button>
+    </div>
+
+    <p class="text-sm text-center mt-4 text-gray-600 dark:text-gray-300">Don’t have an account? <a href="/signup" class="text-indigo-600 hover:underline">Sign up</a></p>
+
+    <div class="text-center mt-4">
+      <a href="/" class="text-indigo-600 hover:text-indigo-800 font-semibold transition btn-bounce">← Back to Home</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% extends 'base.html.twig' %}
+
+{% block title %}Login - TicketFlow{% endblock %}
+
+{% block body %}
+<div class="page flex items-center justify-center min-h-screen px-4">
+  <form class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md animate-bounce-in" method="post" action="/login">
+    <h2 class="text-2xl font-bold text-center mb-4 text-gray-800 dark:text-white">Welcome Back</h2>
+
+    <div class="mb-3">
+      <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Email</label>
+      <input type="email" name="email" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white" />
+    </div>
+
+    <div class="mb-3">
+      <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Password</label>
+      <input type="password" name="password" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white" />
+    </div>
+
+    <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 mt-5">
+      <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md">Login</button>
+    </div>
+
+    <p class="text-sm text-center mt-4 text-gray-600 dark:text-gray-300">Don’t have an account? <a href="/signup" class="text-indigo-600 hover:underline">Sign up</a></p>
+
+  </form>
+</div>
+{% endblock %}

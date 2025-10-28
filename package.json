@@ -1,0 +1,20 @@
+{
+  "name": "twig-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/styles.css -o ./public/build/styles.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/styles.css -o ./public/build/styles.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5"
+  },
+  "dependencies": {
+    "composer": "^4.1.0",
+    "php": "^1.1.0"
+  }
+}
