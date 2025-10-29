@@ -4,18 +4,34 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{% block title %}Ticket App{% endblock %}</title>
-    <link href="/build/styles.css" rel="stylesheet"> {# Tailwind build output path - adjust if needed #}
+    <link href="/build/styles.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen">
+    {% include 'components/navbar.html.twig' %}
     <main class="min-h-screen">
         {% block body %}{% endblock %}
     </main>
 
     {% include 'components/footer.html.twig' %}
 
-    <script src="/js/auth.js"></script>
-    <script src="/js/network.js"></script>
-    <script src="/js/toast.js"></script>
-    <script src="/js/offline_popup.js"></script>
+    <script>
+      // Dark mode toggle functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+          darkModeToggle.addEventListener('click', function() {
+            if (document.documentElement.classList.contains('dark')) {
+              document.documentElement.classList.remove('dark');
+              localStorage.theme = 'light';
+            } else {
+              document.documentElement.classList.add('dark');
+              localStorage.theme = 'dark';
+            }
+          });
+        }
+      });
+    </script>
+    
+    {% block javascripts %}{% endblock %}
 </body>
 </html>
