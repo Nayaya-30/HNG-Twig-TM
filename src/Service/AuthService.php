@@ -7,6 +7,22 @@ class AuthService
     private const USERS_STORAGE_KEY = 'users';
     private const SESSION_KEY = 'ticketapp_session';
     private const CURRENT_USER_KEY = 'currentUser';
+    private const USERS_FILE = __DIR__ . '/../../var/data/users.json';
+
+    /**
+     * Ensure the users file and directory exist
+     */
+    private static function ensureStorage(): void
+    {
+        $dataDir = dirname(self::USERS_FILE);
+        if (!is_dir($dataDir)) {
+            mkdir($dataDir, 0777, true);
+        }
+
+        if (!file_exists(self::USERS_FILE)) {
+            file_put_contents(self::USERS_FILE, '[]');
+        }
+    }
 
     /**
      * Find a user by email
@@ -27,7 +43,9 @@ class AuthService
      */
     public static function getAllUsers(): array
     {
-        $usersJson = file_get_contents(__DIR__ . '/../../var/data/users.json') ?: '[]';
+        self::ensureStorage();
+
+        $usersJson = file_get_contents(self::USERS_FILE);
         return json_decode($usersJson, true) ?: [];
     }
 
@@ -36,24 +54,25 @@ class AuthService
      */
     public static function saveUsers(array $users): void
     {
-        // Ensure the data directory exists
-        $dataDir = __DIR__ . '/../../var/data';
-        if (!is_dir($dataDir)) {
-            mkdir($dataDir, 0777, true);
-        }
-        
-        file_put_contents($dataDir . '/users.json', json_encode($users, JSON_PRETTY_PRINT));
+        self::ensureStorage();
+
+        file_put_contents(self::USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
     }
 
     /**
      * Register a new user
      */
-    public static function registerUser(array $userData): void
-    {
-        $users = self::getAllUsers();
-        $users[] = $userData;
-        self::saveUsers($users);
+    public static function registerUser(array $user): void
+{
+    $filePath = __DIR__ . '/../../var/data/users.json';
+    if (!file_exists(dirname($filePath))) {
+        mkdir(dirname($filePath), 0777, true);
     }
+
+    $users = self::getAllUsers();
+    $users[] = $user;
+    file_put_contents($filePath, json_encode($users, JSON_PRETTY_PRINT));
+}
 
     /**
      * Authenticate user credentials
@@ -72,9 +91,7 @@ class AuthService
      */
     public static function createSession(array $user): void
     {
-        // Remove password from session data
-        unset($user['password']);
-        
+        unset($user['password']); // remove sensitive data
         $_SESSION[self::SESSION_KEY] = session_id();
         $_SESSION[self::CURRENT_USER_KEY] = $user;
     }
