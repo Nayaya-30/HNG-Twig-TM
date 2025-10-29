@@ -1,8 +1,0 @@
-[phases.setup]
-  aptPkgs = ["php8.1", "php8.1-cli", "php8.1-mbstring", "php8.1-xml", "php8.1-sqlite3"]
-  
-[phases.install]
-  cmds = ["curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer", "cd php-twig && composer install --no-dev --optimize-autoloader"]
-  
-[phases.build]
-  cmds = ["echo 'Build completed'"]
