@@ -1,11 +1,13 @@
 <nav class="bg-gray-800 text-gray-100 p-4 flex items-center justify-between">
   <div class="flex items-center gap-4">
-    <div class="text-lg font-serif font-bold text-gold-400">MiManage</div>
-    <a href="/dashboard" class="hover:underline">Dashboard</a>
-    <a href="/tickets" class="hover:underline">Tickets</a>
+    <a href="/" class="text-lg font-serif font-bold text-indigo-400">TicketFlow</a>
+    <a href="{{ path('app_dashboard') }}" class="hover:underline">Dashboard</a>
+    <a href="{{ path('app_tickets') }}" class="hover:underline">Tickets</a>
   </div>
   <div class="flex items-center gap-4">
-    <span id="nav-current-user" class="text-sm"></span>
-    <button id="btn-logout" class="bg-gray-700 px-3 py-1 rounded">Logout</button>
+    {% if app.user %}
+      <span class="text-sm">{{ app.user.name }}</span>
+      <a href="{{ path('app_logout') }}" class="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 transition-colors">Logout</a>
+    {% endif %}
   </div>
 </nav>
