@@ -1,62 +1,73 @@
-{%extends 'base_public.html.twig' %}
+{% extends 'base_public.html.twig' %}
 
 {% block title %}Login - TicketFlow{% endblock %}
 
 {% block body %}
 <div class="page flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4">
   <form method="post" action="/login" class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md animate-bounce-in">
-    <h2 class="text-2xl font-bold text-center mb-4text-gray-800 dark:text-white">Welcome Back</h2>
+    <h2 class="text-2xl font-bold text-center mb-4 text-gray-800 dark:text-white">Welcome Back</h2>
 
-    {# Flash messages (server-side) #}
+    {# Flash messages #}
     {% for label, messages in app.flashes %}
       {% for msg in messages %}
-        <div class="mb-4 px-4 py-3 rounded-md text-sm {{ label== 'success' ? 'bg-green-50 text-green-800' : label == 'error' ? 'bg-red-50 text-red-800' : 'bg-gray-50 text-gray-800' }}">
+        <div class="mb-4 px-4 py-3 rounded-md text-sm {{ label == 'success' ? 'bg-green-50 text-green-800' : (label == 'error' ? 'bg-red-50 text-red-800' : 'bg-gray-50 text-gray-800') }}">
           {{ msg }}
         </div>
-      {% endfor%}
+      {% endfor %}
     {% endfor %}
 
-    {# CSRF token placeholder for Symfony authentication #}
+    {# Global (general) error #}
+    {% if errors.general is defined %}
+      <div class="mb-4 px-4 py-3 rounded-md bg-red-50 text-red-800 text-sm text-center">
+        {{ errors.general }}
+      </div>
+    {% endif %}
+
     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate')|default('') }}" />
 
     {# Email field #}
     <div class="mb-3">
-      <label class="blocktext-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Email</label>
+      <label for="email" class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Email</label>
       <input
+        id="email"
         type="email"
         name="email"
         value="{{ last_username|default('') }}"
-        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white {{ errors.email ? 'border-red-500' : '' }}"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white {{ errors.email is defined ? 'border-red-500' : '' }}"
         required
         autofocus
       />
-      {% if errors.email %}
+      {% if errors.email is defined %}
         <p class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
       {% endif %}
     </div>
 
-   {# Password field #}
+    {# Password field #}
     <div class="mb-3">
-      <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Password</label>
+      <label for="password" class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Password</label>
       <input
+        id="password"
         type="password"
         name="password"
-        class="w-fullp-2 border rounded-md dark:bg-gray-700 dark:text-white {{ errors.password ? 'border-red-500' : '' }}"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white {{ errors.password is defined ? 'border-red-500' : '' }}"
         required
       />
-      {% if errors.password %}
+      {% if errors.password is defined %}
         <p class="text-red-500 text-sm mt-1">{{ errors.password }}</p>
-     {% endif %}
+      {% endif %}
     </div>
 
     {# Submit button #}
     <div class="w-full flex flex-col sm:flex-row justify-between items-center gap-3 mt-5">
-      <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition" {%if isSubmitting %}disabled{% endif %}>
+      <button id="loginButton" type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition" {% if isSubmitting %}disabled{% endif %}>
         {{ isSubmitting ? 'Logging in...' : 'Login' }}
       </button>
     </div>
 
-    <p class="text-sm text-center mt-4 text-gray-600 dark:text-gray-300">Don't have an account? <a href="/signup" class="text-indigo-600 hover:underline">Sign up</a></p>
+    <p class="text-sm text-center mt-4 text-gray-600 dark:text-gray-300">
+      Don't have an account?
+      <a href="/signup" class="text-indigo-600 hover:underline">Sign up</a>
+    </p>
 
     <div class="text-center mt-4">
       <a href="/" class="text-indigo-600 hover:text-indigo-800 font-semibold transition btn-bounce">← Back to Home</a>
@@ -67,87 +78,59 @@
 
 {% block javascripts %}
 <script>
-    // Client-side validation
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const loginButton = document.getElementById('loginButton');
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const loginButton = document.getElementById('loginButton');
 
-        constvalidateEmail = (email) => {
-            if (!email.trim()) return 'Email is required';
-            if (!/\S+@\S+\.\S+/.test(email)) return 'Enter a valid email address';
-            return '';
-        };
+  const validateEmail = (email) => {
+    if (!email.trim()) return 'Email is required';
+    if (!/\S+@\S+\.\S+/.test(email)) return 'Enter a valid email address';
+    return '';
+  };
 
-        const validatePassword = (password) => {
-            if (!password) return'Password is required';
-            if (password.length < 6) return 'Password must be at least 6 characters';
-            return '';
-        };
+  const validatePassword = (password) => {
+    if (!password) return 'Password is required';
+    if (password.length < 6) return 'Password must be at least 6 characters';
+    return '';
+  };
 
-        const showError = (input, message) => {
-            const errorElement = input.parentElement.querySelector('.text-red-500');
-            if (!errorElement) {
-               const p = document.createElement('p');
-                p.className = 'text-red-500 text-sm mt-1';
-                p.textContent = message;
-                input.parentElement.appendChild(p);
-            } else {
-                errorElement.textContent = message;
-            }
-            input.classList.add('border-red-500');
-        };
+  const showError = (input, message) => {
+    clearError(input);
+    const p = document.createElement('p');
+    p.className = 'text-red-500 text-sm mt-1';
+    p.textContent = message;
+    input.classList.add('border-red-500');
+    input.parentElement.appendChild(p);
+  };
 
-       const clearError = (input) => {
-            const errorElement = input.parentElement.querySelector('.text-red-500');
-            if (errorElement) {
-                errorElement.remove();
-            }
-            input.classList.remove('border-red-500');
-        };
+  const clearError = (input) => {
+    const errorElement = input.parentElement.querySelector('.text-red-500');
+    if (errorElement) errorElement.remove();
+    input.classList.remove('border-red-500');
+  };
 
-        // Clear errors when typing
-        [emailInput,passwordInput].forEach(input => {
-            input.addEventListener('input', () => clearError(input));
-        });
+  [emailInput, passwordInput].forEach(input => {
+    input.addEventListener('input', () => clearError(input));
+  });
 
-        // Validate on blur
-        emailInput.addEventListener('blur', () => {
-            const error = validateEmail(emailInput.value);
-            if (error) showError(emailInput, error);
-        });
+  form.addEventListener('submit', (e) => {
+    let hasErrors = false;
 
-        passwordInput.addEventListener('blur', () => {
-            const error = validatePassword(passwordInput.value);
-            if (error) showError(passwordInput, error);
-        });
+    const emailError = validateEmail(emailInput.value);
+    if (emailError) { showError(emailInput, emailError); hasErrors = true; }
 
-        // Form submission
-        form.addEventListener('submit', (e) => {
-            let hasErrors = false;
-            
-            // Validate email
-            const emailError = validateEmail(emailInput.value);
-            if (emailError) {
-                showError(emailInput, emailError);
-                hasErrors = true;
-            }
+    const passwordError = validatePassword(passwordInput.value);
+    if (passwordError) { showError(passwordInput, passwordError); hasErrors = true; }
 
-            // Validate password
-            const passwordError = validatePassword(passwordInput.value);
-            if (passwordError) {
-                showError(passwordInput, passwordError);
-                hasErrors = true;
-            }
-
-if (hasErrors) {
-                e.preventDefault();
-            } else {
-                loginButton.textContent = 'Logging in...';
-                loginButton.disabled = true;
-            }
-        });
-    });
+    if (hasErrors) {
+      e.preventDefault();
+    } else {
+      loginButton.textContent = 'Logging in...';
+      loginButton.disabled = true;
+    }
+  });
+});
 </script>
 {% endblock %}

@@ -3,55 +3,69 @@
 {% block title %}Sign Up - TicketFlow{% endblock %}
 
 {% block body %}
+{% if errors is not defined or errors is empty or errors is not iterable %}
+  {% set errors = {} %}
+{% endif %}
+{% set name = name|default('') %}
+{% set email = email|default('') %}
+{% set isSubmitting = isSubmitting|default(false) %}
+
 <div class="page flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4">
-  <form class="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-2xl shadow-xl w-full max-w-md animate-bounce-in" method="post" action="/signup">
+  <form method="POST" action="{{ path('signup') }}" id="signupForm" class="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-2xl shadow-xl w-full max-w-md animate-bounce-in" method="post" action="/signup" novalidate>
     <h2 class="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">Create Account</h2>
 
-    {# Name #}
+    {# Full Name #}
     <div class="mb-4">
       <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Full Name</label>
-      <input type="text" name="name" value="{{ name|default('') }}" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-      {% if errors.name %}<p class="text-red-500 text-sm">{{ errors.name }}</p>{% endif %}
+      <input id="name" type="text" name="name" value="{{ name }}"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        required />
+      <p class="hidden text-red-500 text-sm mt-1" id="nameError">Full name is required.</p>
+      {% if errors.name is defined %}<p class="text-red-500 text-sm">{{ errors.name }}</p>{% endif %}
     </div>
 
     {# Email #}
     <div class="mb-4">
       <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Email</label>
-      <input type="email" name="email" value="{{ email|default('') }}" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-      {% if errors.email %}<p class="text-red-500 text-sm">{{ errors.email }}</p>{% endif %}
+      <input id="email" type="email" name="email" value="{{ email }}"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        required />
+      <p class="hidden text-red-500 text-sm mt-1" id="emailError">Please enter a valid email address.</p>
+      {% if errors.email is defined %}<p class="text-red-500 text-sm">{{ errors.email }}</p>{% endif %}
     </div>
 
     {# Password #}
     <div class="mb-4">
       <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Password</label>
-      <input type="password" name="password" value="{{ password|default('') }}" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-      {% if passwordStrength.label %}
-        <div class="mt-2">
-          <div class="w-full h-2 bg-gray-200 rounded-md overflow-hidden">
-            <div class="h-2 {{ passwordStrength.color }}" style="width: {{ passwordStrength.level }}%"></div>
-          </div>
-          <p class="text-sm mt-1 font-medium {{ passwordStrength.color }}">{{ passwordStrength.label }}</p>
-        </div>
-      {% endif %}
-      {% if errors.password %}<p class="text-red-500 text-sm">{{ errors.password }}</p>{% endif %}
+      <input id="password" type="password" name="password"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        required minlength="6" />
+      <p class="hidden text-red-500 text-sm mt-1" id="passwordError">Password must be at least 6 characters long.</p>
+      {% if errors.password is defined %}<p class="text-red-500 text-sm">{{ errors.password }}</p>{% endif %}
     </div>
 
     {# Confirm Password #}
     <div class="mb-6">
       <label class="block text-gray-700 dark:text-gray-200 text-sm font-medium mb-1">Confirm Password</label>
-      <input type="password" name="confirmPassword" value="{{ confirmPassword|default('') }}" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-      {% if errors.confirmPassword %}<p class="text-red-500 text-sm">{{ errors.confirmPassword }}</p>{% endif %}
+      <input id="confirmPassword" type="password" name="confirmPassword"
+        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        required />
+      <p class="hidden text-red-500 text-sm mt-1" id="confirmError">Passwords do not match.</p>
+      {% if errors.confirmPassword is defined %}<p class="text-red-500 text-sm">{{ errors.confirmPassword }}</p>{% endif %}
     </div>
 
-    {# Buttons #}
+    {# Submit Button #}
     <div class="w-full flex flex-col sm:flex-row gap-3">
-      <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition-transform transform active:scale-95" {% if isSubmitting %}disabled{% endif %}>
+      <button id="signupButton" type="submit"
+        class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition-transform transform active:scale-95"
+        {% if isSubmitting %}disabled{% endif %}>
         {{ isSubmitting ? 'Creating...' : 'Sign Up' }}
       </button>
     </div>
 
     <p class="text-sm text-center mt-4 text-gray-600 dark:text-gray-300">
-      Already have an account? <a href="/login" class="text-indigo-600 hover:underline cursor-pointer">Log in</a>
+      Already have an account?
+      <a href="/login" class="text-indigo-600 hover:underline cursor-pointer">Log in</a>
     </p>
 
     <div class="text-center mt-4">
@@ -59,4 +73,51 @@
     </div>
   </form>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('signupForm');
+    const button = document.getElementById('signupButton');
+
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirmPassword');
+
+    const nameError = document.getElementById('nameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmError = document.getElementById('confirmError');
+
+    const validateEmail = (email) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+form.addEventListener('submit', (e) => {
+  let valid = true;
+  [nameError, emailError, passwordError, confirmError].forEach(el => el.classList.add('hidden'));
+
+  if (!nameInput.value.trim()) { nameError.classList.remove('hidden'); valid = false; }
+  if (!validateEmail(emailInput.value.trim())) { emailError.classList.remove('hidden'); valid = false; }
+  if (passwordInput.value.length < 6) { passwordError.classList.remove('hidden'); valid = false; }
+  if (confirmInput.value !== passwordInput.value) { confirmError.classList.remove('hidden'); valid = false; }
+
+  // ❗️Only block submit if validation failed
+  if (!valid) {
+    e.preventDefault();
+    return;
+  }
+
+  // Otherwise allow real form submission to backend
+  button.disabled = true;
+  button.textContent = 'Creating...';
+  button.classList.add('scale-95');
+});
+    
+
+    [nameInput, emailInput, passwordInput, confirmInput].forEach(input => {
+      input.addEventListener('input', () => {
+        const errorMap = { name: nameError, email: emailError, password: passwordError, confirmPassword: confirmError };
+        if (errorMap[input.id]) errorMap[input.id].classList.add('hidden');
+      });
+    });
+  });
+</script>
 {% endblock %}
